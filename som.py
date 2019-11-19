@@ -152,5 +152,6 @@ if __name__ == '__main__':
     som.train()
 
     # som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\iris.data', 4, 4,
-    #           [ClusterWeight('c1', [0.5, 0.6, 0.8, 0.9]), ClusterWeight('c2', [0.4, 0.2, 0.5, 0.6])], 0.5, 0, True)
+    #           [ClusterWeight('versicolor', [0.5, 0.6, 0.8, 0.9]), ClusterWeight('virginica', [0.4, 0.2, 0.5, 0.6]),
+    #            ClusterWeight('setosa', [0.1, 0.2, 0.3, 0.4])], 0.5, 0, True)
     # som.train()
