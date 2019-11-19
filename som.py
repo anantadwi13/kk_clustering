@@ -24,8 +24,8 @@ class SOM:
     STATUS_RUNNING = 2
     END_LEARNING_RATE = 0.01
 
-    def __init__(self, dataset_file, attrib_len, class_index, clusterweights: List[ClusterWeight], learningrate: float,
-                 radius: float):
+    def __init__(self, dataset_file, attrib_len, class_index, clusterweights: List[ClusterWeight],
+                 learningrate: float = 0.5, radius: float = 0, with_normalize=False):
         self.dataset_file = dataset_file
         self.attrib_len = attrib_len
         self.class_index = class_index
@@ -42,6 +42,9 @@ class SOM:
                 return
         try:
             self.load_dataset()
+            if with_normalize:
+                self.normalize()
+            print(self.dataset[0].attributes)
         except Exception as e:
             print(e)
 
@@ -63,6 +66,44 @@ class SOM:
                             temp.append(attrib_val)
                 self.dataset.append(Data(class_name, temp))
 
+    def normalize(self):
+        min_attrib_dataset = []
+        max_attrib_dataset = []
+        # min_attrib_weight = []
+        # max_attrib_weight = []
+
+        for idx_row, row in enumerate(self.dataset):
+            for idx_attrib, attrib_val in enumerate(row.attributes):
+                if len(min_attrib_dataset) < len(row.attributes):
+                    min_attrib_dataset.insert(idx_attrib, attrib_val)
+                    max_attrib_dataset.insert(idx_attrib, attrib_val)
+                else:
+                    if attrib_val < min_attrib_dataset[idx_attrib]:
+                        min_attrib_dataset[idx_attrib] = attrib_val
+                    if attrib_val > max_attrib_dataset[idx_attrib]:
+                        max_attrib_dataset[idx_attrib] = attrib_val
+
+        for idx_row, row in enumerate(self.dataset):
+            for idx_attrib, attrib_val in enumerate(row.attributes):
+                self.dataset[idx_row].attributes[idx_attrib] = (attrib_val - min_attrib_dataset[idx_attrib]) / \
+                                                (max_attrib_dataset[idx_attrib] - min_attrib_dataset[idx_attrib])
+
+        # for idx_cls, cluster_weight in enumerate(self.clusterweights):
+        #     for idx_attrib, attrib_val in enumerate(cluster_weight.weights):
+        #         if len(min_attrib_weight) < len(cluster_weight.weights):
+        #             min_attrib_weight.insert(idx_attrib, attrib_val)
+        #             max_attrib_weight.insert(idx_attrib, attrib_val)
+        #         else:
+        #             if attrib_val < min_attrib_weight[idx_attrib]:
+        #                 min_attrib_weight[idx_attrib] = attrib_val
+        #             if attrib_val > max_attrib_weight[idx_attrib]:
+        #                 max_attrib_weight[idx_attrib] = attrib_val
+        #
+        # for idx_cls, cluster_weight in enumerate(self.clusterweights):
+        #     for idx_attrib, attrib_val in enumerate(cluster_weight.weights):
+        #         self.clusterweights[idx_cls].weights[idx_attrib] = (attrib_val - min_attrib_weight[idx_attrib]) / \
+        #                                             (max_attrib_weight[idx_attrib] - min_attrib_weight[idx_attrib])
+
     def calculate_distance(data: Data, cluster_weights: List[ClusterWeight]) -> dict:
         min_distance = 100000000
         min_idx = None
@@ -80,12 +121,13 @@ class SOM:
             if temp_distance['index'] == idx:
                 temp_weight = []
                 for idx_weight, weight in enumerate(cluster_weight.weights):
-                    temp_weight.append(((1-learningrate) * weight) + (learningrate * input.attributes[idx_weight]))
+                    temp_weight.append(((1 - learningrate) * weight) + (learningrate * input.attributes[idx_weight]))
                 cluster_weight.weights = temp_weight
 
     def print_weight(clusterweights: List[ClusterWeight]):
         for cluster_weight in clusterweights:
             print(cluster_weight.__dict__)
+        print()
 
     def train(self):
         learningrate = copy.deepcopy(self.learningrate)
@@ -94,13 +136,16 @@ class SOM:
             for row in self.dataset:
                 SOM.print_weight(clusterweights)
                 temp_distance = SOM.calculate_distance(row, clusterweights)
+                print(temp_distance['distance'])
                 SOM.update_weight(row, clusterweights, temp_distance, learningrate)
             learningrate *= 0.5
 
 
 if __name__ == '__main__':
-    som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\coba.data', 3, -1,
-              [ClusterWeight('c1', [0.5, 0.6, 0.8]), ClusterWeight('c2', [0.4, 0.2, 0.5])], 0.5, 0)
-    som.train()
-    print('========================================')
+    # som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\coba.data', 3, -1,
+    #           [ClusterWeight('c1', [0.5, 0.6, 0.8]), ClusterWeight('c2', [0.4, 0.2, 0.5])], 0.5, 0, True)
+    # som.train()
+
+    som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\iris.data', 4, 4,
+              [ClusterWeight('c1', [0.5, 0.6, 0.8, 0.9]), ClusterWeight('c2', [0.4, 0.2, 0.5, 0.6])], 0.5, 0, True)
     som.train()
