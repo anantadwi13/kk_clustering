@@ -9,6 +9,7 @@ class Data:
     def __init__(self, class_name: str, attributes: List):
         self.class_name = class_name
         self.attributes = attributes
+        self.clustered_class_name = None
 
 
 class ClusterWeight:
@@ -44,7 +45,6 @@ class SOM:
             self.load_dataset()
             if with_normalize:
                 self.normalize()
-            print(self.dataset[0].attributes)
         except Exception as e:
             print(e)
 
@@ -129,6 +129,10 @@ class SOM:
             print(cluster_weight.__dict__)
         print()
 
+    def print_dataset(dataset: List[Data]):
+        for data in dataset:
+            print(data.__dict__)
+
     def train(self):
         learningrate = copy.deepcopy(self.learningrate)
         clusterweights = copy.deepcopy(self.clusterweights)
@@ -136,16 +140,17 @@ class SOM:
             for row in self.dataset:
                 SOM.print_weight(clusterweights)
                 temp_distance = SOM.calculate_distance(row, clusterweights)
-                print(temp_distance['distance'])
+                row.clustered_class_name = clusterweights[temp_distance['index']].name
                 SOM.update_weight(row, clusterweights, temp_distance, learningrate)
             learningrate *= 0.5
+        SOM.print_dataset(self.dataset)
 
 
 if __name__ == '__main__':
-    # som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\coba.data', 3, -1,
-    #           [ClusterWeight('c1', [0.5, 0.6, 0.8]), ClusterWeight('c2', [0.4, 0.2, 0.5])], 0.5, 0, True)
-    # som.train()
-
-    som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\iris.data', 4, 4,
-              [ClusterWeight('c1', [0.5, 0.6, 0.8, 0.9]), ClusterWeight('c2', [0.4, 0.2, 0.5, 0.6])], 0.5, 0, True)
+    som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\coba.data', 3, -1,
+              [ClusterWeight('c1', [0.5, 0.6, 0.8]), ClusterWeight('c2', [0.4, 0.2, 0.5])], 0.5, 0, True)
     som.train()
+
+    # som = SOM(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\iris.data', 4, 4,
+    #           [ClusterWeight('c1', [0.5, 0.6, 0.8, 0.9]), ClusterWeight('c2', [0.4, 0.2, 0.5, 0.6])], 0.5, 0, True)
+    # som.train()
