@@ -1,36 +1,27 @@
-import csv
 import os
+import KMeans
+import matplotlib.pyplot as plt
 
 
-class KMeans:
-    def __init__(self, dataset_file, attrib_len, class_index):
-        self.dataset_file = dataset_file
-        self.attrib_len = attrib_len
-        self.class_index = class_index
-        self.dataset = []
-        try:
-            self.load_dataset()
-        except Exception as e:
-            print(e)
+if __name__ == '__main__':
 
-    def load_dataset(self):
-        with open(self.dataset_file) as file_csv:
-            rows = csv.reader(file_csv, delimiter=',')
-            for row in rows:
-                if len(row) < self.attrib_len:
-                    continue
-                temp = []
-                class_name = None
-                for idx, attrib_val in enumerate(row):
-                    if idx == self.class_index:
-                        class_name = attrib_val
-                    else:
-                        try:
-                            temp.append(float(attrib_val))
-                        except:
-                            temp.append(attrib_val)
-                self.dataset.append({'attributes': temp, 'class': class_name})
-            print(self.dataset)
+    selected_attrib = (2, 1)
 
+    kmeans = KMeans.Algorithm(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\iris.data', 4, 4, 5, selected_attrib_idx=selected_attrib)
+    res = kmeans.train()
 
-kmeans = KMeans(os.path.dirname(os.path.abspath(__file__)) + '\\dataset\\iris.data', 4, 4)
+    c = []
+    x = []
+    y = []
+
+    for idx_cluster, cluster in enumerate(res):
+        for member in cluster.members:
+            c.append(idx_cluster)
+            x.append(member.pos[selected_attrib[0]])
+            y.append(member.pos[selected_attrib[1]])
+
+    plt.scatter(x, y, c=c, cmap='gist_rainbow')
+
+    plt.xlabel('Spea1 Length', fontsize=18)
+    plt.ylabel('Sepal Width', fontsize=18)
+    plt.show()
