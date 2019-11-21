@@ -120,7 +120,7 @@ class Algorithm:
     def train(self) -> List[Centroid]:
         self.generate_random_centroids()
         running = True
-        self.print_centroids()
+        # self.print_centroids()
         iteration = 0
         while running:
             iteration += 1
@@ -129,6 +129,6 @@ class Algorithm:
             self.update_centroids()
             if Algorithm.is_same_position(old_centroids, self.centroids):
                 running = False
-        self.print_centroids()
+        # self.print_centroids()
         print('Iteration\t', iteration)
         return self.centroids

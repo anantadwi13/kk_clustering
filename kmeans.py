@@ -14,13 +14,22 @@ if __name__ == '__main__':
     x = []
     y = []
 
+    x_cent = []
+    y_cent = []
+    c_cent = []
+
     for idx_cluster, cluster in enumerate(res):
         for member in cluster.members:
             c.append(idx_cluster)
             x.append(member.pos[selected_attrib[0]])
             y.append(member.pos[selected_attrib[1]])
 
-    plt.scatter(x, y, c=c, cmap='gist_rainbow')
+        c_cent.append(idx_cluster)
+        x_cent.append(cluster.pos[selected_attrib[0]])
+        y_cent.append(cluster.pos[selected_attrib[1]])
+
+    plt.scatter(x, y, c=c, marker='o', cmap='gist_rainbow')
+    plt.scatter(x_cent, y_cent, c='black', marker=(5, 1), cmap='gist_rainbow')
 
     plt.xlabel('Sepal Length', fontsize=18)
     plt.ylabel('Sepal Width', fontsize=18)
